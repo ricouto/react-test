@@ -1,7 +1,11 @@
 import React from "react"
 import Counter from "../Counter"
-import { render, screen, fireEvent } from "@testing-library/react"
+import { render, screen, fireEvent, cleanup } from "@testing-library/react"
 import "@testing-library/jest-dom/extend-expect"
+
+afterAll(() => {
+    cleanup()
+})
 
 test('header renders with correct text', () => {
     render(<Counter />)
@@ -107,4 +111,74 @@ test('changing input value then clicking on subtract btn works correctly', () =>
 
     fireEvent.click(subtractBtnEl)
     expect(counterEl.textContent).toBe("-5")
+});
+
+test('adding  and then subtracting leads to the correct counter number', () => {
+    render(<Counter />)
+    const subtractBtnEl = screen.getByTestId('subtract-btn')
+    const addBtnEl = screen.getByTestId('add-btn')
+    const counterEl = screen.getByTestId('counter')
+    const inputEl = screen.getByTestId('input')
+
+    fireEvent.change(inputEl, {
+        target: {
+            value: "10"
+        }
+    })
+
+    fireEvent.click(addBtnEl)
+    fireEvent.click(addBtnEl)
+    fireEvent.click(addBtnEl)
+    fireEvent.click(addBtnEl)
+    fireEvent.click(subtractBtnEl)
+    fireEvent.click(subtractBtnEl)
+
+    expect(counterEl.textContent).toBe("20")
+
+    fireEvent.change(inputEl, {
+        target: {
+            value: "5"
+        }
+    })
+
+    fireEvent.click(addBtnEl)
+    fireEvent.click(subtractBtnEl)
+    fireEvent.click(subtractBtnEl)
+
+    expect(counterEl.textContent).toBe("15")
+});
+
+test('counter contains correct className', () => {
+    render(<Counter />)
+    const counterEl = screen.getByTestId('counter')
+    const inputEl = screen.getByTestId('input')
+    const subtractBtnEl = screen.getByTestId('subtract-btn')
+    const addBtnEl = screen.getByTestId('add-btn')
+
+    expect(counterEl.className).toBe("")
+
+    fireEvent.change(inputEl, {
+        target: {
+            value: "50"
+        }
+    })
+
+    fireEvent.click(addBtnEl)
+    expect(counterEl.className).toBe("")
+
+    fireEvent.click(addBtnEl)
+    expect(counterEl.className).toBe('green')
+    
+    fireEvent.click(addBtnEl)
+    expect(counterEl.className).toBe('green')
+
+    fireEvent.click(subtractBtnEl)
+    fireEvent.click(subtractBtnEl)
+    expect(counterEl.className).toBe('')
+
+    fireEvent.click(subtractBtnEl)
+    fireEvent.click(subtractBtnEl)
+    fireEvent.click(subtractBtnEl)
+    fireEvent.click(subtractBtnEl)
+    expect(counterEl.className).toBe('red')
 });
